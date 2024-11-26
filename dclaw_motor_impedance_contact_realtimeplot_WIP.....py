@@ -33,7 +33,7 @@ jacr = np.zeros((3,3, model.nv)) #rotational jacobian
 #Simulate
 desired_stiffness = 10
 desired_damping = 3
-desired_inertia = 30
+desired_inertia = 8
 #Get error.
 end_effector_id = []
 end_effector_id.append(model.body('FFL12').id)
@@ -43,9 +43,28 @@ end_effector_id.append(model.body('THL32').id)
 # current_pose = data.body(end_effector_id).xpos #Current pose
 # x_error = np.subtract(goal, current_pose) #Init Error
 
-force_list = []
-f_imp_list = []
+# force_list = [0,0,0]
+# f_imp_list = [0,0,0]
+_, ax = plt.subplots(2, 1, sharex=True, figsize=(10, 10))
+force_list = np.zeros(3)
+f_imp_list = np.zeros(9)
 
+# -------------------------------------------
+time = 0
+lines1 = ax[0].plot(time,[force_list], label='Force sensor')
+ax[0].set_title('Force sensor')
+ax[0].set_ylabel('Newtons')
+ax[0].set_xlabel('time')
+ax[0].legend(iter(lines1), ('$F_x$', '$F_y$', '$F_z$'))
+
+lines2 = ax[1].plot(time,[f_imp_list], label='Impedance controller')
+ax[1].set_title('Impedance controller')
+ax[1].set_ylabel('Newtons')
+ax[1].set_xlabel('time')
+ax[1].legend(iter(lines2), ('FFL10','FFL11','FFL12','MFL20','MFL21','MFL22','THL30','THL31','THL32'))
+# -------------------------------------------
+plt.tight_layout()
+plt.draw()
 tips = ["FFtip", "MFtip", "THtip"]
 with mujoco.viewer.launch_passive(model, data) as viewer:
     viewer.sync()
@@ -66,32 +85,30 @@ with mujoco.viewer.launch_passive(model, data) as viewer:
     # FFtip_pos1 = data.site("FFtip").xpos
 
     
-    time = 0
-    FFtip_pos1 = np.array([data.site("FFtip").xpos, data.site("MFtip").xpos, data.site("THtip").xpos])
-    FFtip_pos2 = np.zeros([3,3])
-    FFtip_vel1 = np.zeros([3,3])
-    FFtip_vel2 = np.zeros([3,3])
-    FFtip_acc = np.zeros([3,3])
+    
     while viewer.is_running():
         F_imp = np.zeros([1,9])
         time += 1
-
         for idx, tip in enumerate(tips):
             x_error = np.subtract(goal, data.site(tip).xpos)
             
             mujoco.mj_jac(model, data, jacp[idx, :], jacr[idx, :], data.site(tip).xpos, end_effector_id[idx])
             xvel = jacp[idx, :]@data.qvel 
         # -------------------------------------------
-            FFtip_pos2[idx, :] = data.site(tip).xpos.copy()
-            FFtip_vel2[idx, :] = (FFtip_pos2[idx, :] - FFtip_pos1[idx, :]) / dt
-            FFtip_acc[idx, :] = (FFtip_vel2[idx, :] - FFtip_vel1[idx, :]) / dt
+            FFtip_pos1 = data.site(tip).xpos
+            FFtip_pos2 = np.zeros(3)
+            FFtip_vel1 = np.zeros(3)
+            FFtip_vel2 = np.zeros(3)
+            FFtip_acc = np.zeros(3)
+            FFtip_pos2 = data.site(tip).xpos.copy()
+            FFtip_vel2 = (FFtip_pos2 - FFtip_pos1) / dt
+            FFtip_acc = (FFtip_vel2 - FFtip_vel1) / dt
 
-            FFtip_vel1[idx, :] = FFtip_vel2[idx, :].copy()  
-            FFtip_pos1[idx, :] = FFtip_pos2[idx, :].copy()
+            FFtip_vel1 = FFtip_vel2
+            FFtip_pos1 = FFtip_pos2
         # -------------------------------------------
 
-            xacc = FFtip_acc[idx, :]       # data.body('FFL12').cacc[3:6]
-        
+            xacc = FFtip_acc   
             F_imp += jacp[idx].T @ (desired_inertia*xacc + desired_damping*xvel + desired_stiffness*x_error) 
         # mj.mj_rnePostConstraint(model,data)
         data.qfrc_applied = F_imp
@@ -100,29 +117,25 @@ with mujoco.viewer.launch_passive(model, data) as viewer:
 
         with viewer.lock():
             viewer.opt.flags[mujoco.mjtVisFlag.mjVIS_CONTACTFORCE] = 1
+        
+        # analyze the plot
 
-        force_list.append(data.sensor("ft_sensor_force").data.copy())
-        f_imp_list.append(F_imp[0])
+
+        # force_list.append(data.sensor("ft_sensor_force").data.copy())
+        # f_imp_list.append(F_imp[0])
+        ax[0].plot(time,[data.sensor("ft_sensor_force").data.copy()], label='Force sensor')
+        ax[1].plot(time,[F_imp[0]], label='Impedance controller')
+        lines1[0]._x = time
+        lines1._y = [data.sensor("ft_sensor_force").data.copy()]
+        # lines1.set_ydata([data.sensor("ft_sensor_force").data.copy()])
+        # plt.gca().lines[0].set_xdata([data.sensor("ft_sensor_force").data.copy()])
         #Step the simulation.
         mj.mj_step(model, data)
+
         viewer.sync()
-    # else : 
-    #     print("completed")
+    else : 
+        print("completed")
 
-_, ax = plt.subplots(2, 1, sharex=True, figsize=(10, 10))
-force_list = np.array(force_list)
-f_imp_list = np.array(f_imp_list)
-sim_time = range(time)
-lines = ax[0].plot(sim_time,force_list, label='Force sensor')
-ax[0].set_title('Force sensor')
-ax[0].set_ylabel('Newtons')
-ax[0].set_xlabel('time')
-ax[0].legend(iter(lines), ('$F_x$', '$F_y$', '$F_z$'))
 
-lines = ax[1].plot(sim_time,f_imp_list, label='Impedance controller')
-ax[1].set_title('Impedance controller')
-ax[1].set_ylabel('Newtons')
-ax[1].set_xlabel('time')
-ax[1].legend(iter(lines), ('FFL10','FFL11','FFL12','MFL20','MFL21','MFL22','THL30','THL31','THL32'))
-plt.tight_layout()
-plt.show()
+
+pass
