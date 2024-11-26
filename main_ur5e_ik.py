@@ -7,7 +7,7 @@ import mujoco as mj
 import mujoco.viewer
 from robot_descriptions import ur5e_mj_description
 import numpy as np
-import mediapy as media
+# import mediapy as media
 model = mj.MjModel.from_xml_path(ur5e_mj_description.MJCF_PATH)
 # other option : model = load_robot_description("ur5e_mj_description")  [from robot_descriptions.loaders.mujoco import load_robot_description]
 

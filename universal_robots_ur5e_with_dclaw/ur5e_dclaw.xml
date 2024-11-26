@@ -117,7 +117,7 @@
                   <site name="attachment_site" pos="0 0.1 0" quat="-1 1 0 0"/>
                   <body name="mount" pos="0 0.1 0.">
                     <include file="assets/chain3xh.xml"/>
-                    <include file="assets/chain3xh_overlay.xml"/>
+                    <!-- <include file="assets/chain3xh_overlay.xml"/> -->
 	                </body>
                 </body>
               </body>
@@ -139,6 +139,6 @@
   </actuator>
 
   <keyframe>
-    <key name="home" qpos="-1.5708 -1.5708 1.5708 -1.5708 -1.5708 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 " ctrl="-1.5708 -1.5708 1.5708 -1.5708 -1.5708 0 0 0 0 0 0 0 0 0 0"/>
+    <key name="home" qpos="-1.5708 -1.5708 1.5708 -1.5708 -1.5708 0 0 0 0 0 0 0 0 0 0" ctrl="-1.5708 -1.5708 1.5708 -1.5708 -1.5708 0 0 0 0 0 0 0 0 0 0"/>
   </keyframe>
 </mujoco>
