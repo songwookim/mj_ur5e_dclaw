@@ -22,6 +22,7 @@ mujoco.mj_resetData(model, data)
 tol = 0.01
 dt = 0.0025
 damping = 0.25
+# goal = [-0., -0.0, 0.1] #Desire position
 goal = [-0., -0.0, 0.1] #Desire position
 
 
@@ -31,9 +32,10 @@ jacp = np.zeros((3,3, model.nv)) #translation jacobian (NUMBER OF JOINT x NUM_OF
 jacr = np.zeros((3,3, model.nv)) #rotational jacobian
 
 #Simulate
-desired_stiffness = 10
+desired_stiffness = 500
 desired_damping = 3
-desired_inertia = 30
+desired_inertia = 0.01 # compare 1 with 30
+
 #Get error.
 end_effector_id = []
 end_effector_id.append(model.body('FFL12').id)
@@ -65,13 +67,13 @@ with mujoco.viewer.launch_passive(model, data) as viewer:
     
     # FFtip_pos1 = data.site("FFtip").xpos
 
-    
     time = 0
-    FFtip_pos1 = np.array([data.site("FFtip").xpos, data.site("MFtip").xpos, data.site("THtip").xpos])
-    FFtip_pos2 = np.zeros([3,3])
-    FFtip_vel1 = np.zeros([3,3])
-    FFtip_vel2 = np.zeros([3,3])
-    FFtip_acc = np.zeros([3,3])
+    Tip_pos1 = np.array([data.site("FFtip").xpos, data.site("MFtip").xpos, data.site("THtip").xpos])
+    Tip_pos2 = np.zeros([3,3])
+    Tip_vel1 = np.zeros([3,3])
+    Tip_vel2 = np.zeros([3,3])
+    Tip_acc = np.zeros([3,3])
+
     while viewer.is_running():
         F_imp = np.zeros([1,9])
         time += 1
@@ -82,18 +84,17 @@ with mujoco.viewer.launch_passive(model, data) as viewer:
             mujoco.mj_jac(model, data, jacp[idx, :], jacr[idx, :], data.site(tip).xpos, end_effector_id[idx])
             xvel = jacp[idx, :]@data.qvel 
         # -------------------------------------------
-            FFtip_pos2[idx, :] = data.site(tip).xpos.copy()
-            FFtip_vel2[idx, :] = (FFtip_pos2[idx, :] - FFtip_pos1[idx, :]) / dt
-            FFtip_acc[idx, :] = (FFtip_vel2[idx, :] - FFtip_vel1[idx, :]) / dt
+            Tip_pos2[idx, :] = data.site(tip).xpos.copy()
+            Tip_vel2[idx, :] = (Tip_pos2[idx, :] - Tip_pos1[idx, :]) / dt
+            Tip_acc[idx, :] = (Tip_vel2[idx, :] - Tip_vel1[idx, :]) / dt
 
-            FFtip_vel1[idx, :] = FFtip_vel2[idx, :].copy()  
-            FFtip_pos1[idx, :] = FFtip_pos2[idx, :].copy()
+            Tip_vel1[idx, :] = Tip_vel2[idx, :].copy()  
+            Tip_pos1[idx, :] = Tip_pos2[idx, :].copy()
         # -------------------------------------------
 
-            xacc = FFtip_acc[idx, :]       # data.body('FFL12').cacc[3:6]
+            xacc = Tip_acc[idx, :]       # data.body('FFL12').cacc[3:6]
         
-            F_imp += jacp[idx].T @ (desired_inertia*xacc + desired_damping*xvel + desired_stiffness*x_error) 
-        # mj.mj_rnePostConstraint(model,data)
+            F_imp += jacp[idx].T @ (desired_inertia*xacc + desired_damping*xvel + desired_stiffness*x_error)             
         data.qfrc_applied = F_imp
 
         mj.mj_forward(model, data)
@@ -102,7 +103,7 @@ with mujoco.viewer.launch_passive(model, data) as viewer:
             viewer.opt.flags[mujoco.mjtVisFlag.mjVIS_CONTACTFORCE] = 1
 
         force_list.append(data.sensor("ft_sensor_force").data.copy())
-        f_imp_list.append(F_imp[0])
+        f_imp_list.append(F_imp[0][0:3])
         #Step the simulation.
         mj.mj_step(model, data)
         viewer.sync()
@@ -123,6 +124,7 @@ lines = ax[1].plot(sim_time,f_imp_list, label='Impedance controller')
 ax[1].set_title('Impedance controller')
 ax[1].set_ylabel('Newtons')
 ax[1].set_xlabel('time')
-ax[1].legend(iter(lines), ('FFL10','FFL11','FFL12','MFL20','MFL21','MFL22','THL30','THL31','THL32'))
+# ax[1].legend(iter(lines), ('FFL10','FFL11','FFL12','MFL20','MFL21','MFL22','THL30','THL31','THL32'))
+ax[1].legend(iter(lines), ('FFL10','FFL11','FFL12'))
 plt.tight_layout()
 plt.show()
