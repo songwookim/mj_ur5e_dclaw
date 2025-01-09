@@ -1,0 +1,10 @@
+<mujoco model="dclaw3xh">
+  <compiler meshdir="."/>
+  <include file="assets/dependencies3xh.xml"/>
+  <include file="../scenes/basic_scene.xml"/>
+  <worldbody>
+    <body name="mount" pos="0 0 3.0">
+      <include file="assets/chain3xh.xml"/>
+    </body>
+  </worldbody>
+</mujoco>

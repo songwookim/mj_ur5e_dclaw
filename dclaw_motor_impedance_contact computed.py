@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 
-model = mj.MjModel.from_xml_path("./universal_robots_ur5e_with_dclaw/robel_sim/dclaw_motor/dclaw3xh.xml")
+model = mj.MjModel.from_xml_path("./universal_robots_ur5e_with_dclaw/dclaw_motor/dclaw3xh.xml")
 
 data = mj.MjData(model)                # MuJoCo data
 cam = mj.MjvCamera() 

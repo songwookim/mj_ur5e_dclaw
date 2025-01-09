@@ -1,0 +1,91 @@
+<mujoco model="dclaw_gripper">
+  <compiler angle="radian"/>
+  <statistic meansize="0.069281" extent="0.357941" center="-0.000215461 -0.000685982 0.0624139"/>
+  <asset>
+    <mesh name="base_link" file="base_link.obj"/>
+    <mesh name="base_link_cylinder" file="base_link_cylinder.obj"/>
+    <mesh name="link_1" file="link_1.obj"/>
+    <mesh name="link_2" file="link_2.obj"/>
+    <mesh name="link_3" file="link_3.obj"/>
+    <mesh name="finger_tip" file="finger_tip.obj"/>
+  </asset>
+  <worldbody>
+    <geom quat="0.707109 0 -0.707105 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="base_link"/>
+    <geom quat="0.707109 0 -0.707105 0" type="mesh" mesh="base_link_cylinder"/>
+    <geom size="0.013 0.02 0.025" pos="0.0120001 -0.059 0.0129999" quat="0.707109 0 -0.707105 0" type="box"/>
+    <geom size="0.013 0.02 0.025" pos="-0.0579999 0.02 0.0130004" quat="0.612374 0.353555 -0.61237 0.353553" type="box"/>
+    <geom size="0.013 0.02 0.025" pos="0.0450001 0.042 0.0129997" quat="0.612374 -0.353555 -0.61237 -0.353553" type="box"/>
+    <body name="link_f1_1" pos="-0.0542689 0.026467 0.0138363" quat="0.183011 0.683015 -0.18301 0.683011">
+      <inertial pos="0.052938 -0.00497139 -0.000694028" quat="-6.54887e-05 0.707107 0.00116212 0.707106" mass="0.0500998" diaginertia="1.27968e-05 1.169e-05 8.46909e-06"/>
+      <joint name="joint_f1_0" pos="0 0 0" axis="0 -0.0015509 -0.999999" range="-0.524 1.32"/>
+      <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="link_1"/>
+      <geom size="0.029 0.019 0.015" pos="0.05 -0.005 0" type="box"/>
+      <geom size="0.015 0.012 0.005" pos="0.013 -0.005 -0.018" type="box"/>
+      <geom size="0.015 0.012 0.005" pos="0.013 -0.005 0.018" type="box"/>
+      <body name="link_f1_2" pos="0.0684978 -0.00447059 -0.000694804">
+        <inertial pos="0.0529346 4.2066e-05 -0.000658949" quat="0.000467686 0.711493 0.000697337 0.702692" mass="0.0500998" diaginertia="1.33904e-05 1.10965e-05 8.46907e-06"/>
+        <joint name="joint_f1_1" pos="0 0 0" axis="-0.0079404 0.999967 -0.00155082" range="-1.57 1.57"/>
+        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="link_2"/>
+        <geom size="0.029 0.018 0.015" pos="0.05 0 0" type="box"/>
+        <geom size="0.015 0.005 0.012" pos="0.013 0.018 0" type="box"/>
+        <geom size="0.015 0.005 0.012" pos="0.013 -0.018 0" type="box"/>
+        <body name="link_f1_3" pos="0.0684925 0.000542552 -0.000853424">
+          <inertial pos="0.0442888 0.000352359 0.000434933" quat="-0.00227565 0.703618 0.00334478 0.710566" mass="0.0260029" diaginertia="8.6867e-06 7.1941e-06 3.47733e-06"/>
+          <joint name="joint_f1_2" pos="0 0 0" axis="0.0079404 -0.999967 0.00155082" range="-1.57 1.57"/>
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="link_3"/>
+          <geom type="mesh" mesh="finger_tip"/>
+          <geom size="0.015 0.005 0.012" pos="0.013 0.018 0" type="box"/>
+          <geom size="0.015 0.005 0.012" pos="0.013 -0.018 0" type="box"/>
+        </body>
+      </body>
+    </body>
+    <body name="link_f2_1" pos="0.050972 0.0333216 0.0138352" quat="0.183013 -0.683015 -0.183012 -0.683011">
+      <inertial pos="0.0529366 0.0029921 -0.000173412" quat="-0.00232949 0.707103 0.00342611 0.707098" mass="0.0500998" diaginertia="1.27968e-05 1.169e-05 8.46909e-06"/>
+      <joint name="joint_f2_0" pos="0 0 0" axis="0 -0.00155087 -0.999999" range="-1.32 0.524"/>
+      <geom pos="0 0.008 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="link_1"/>
+      <geom size="0.029 0.019 0.015" pos="0.05 0.003 0" type="box"/>
+      <geom size="0.015 0.012 0.005" pos="0.013 0.003 -0.018" type="box"/>
+      <geom size="0.015 0.012 0.005" pos="0.013 0.003 0.018" type="box"/>
+      <body name="link_f2_2" pos="0.068493 0.00359253 -0.000174343">
+        <inertial pos="0.0529373 0.000382054 -3.96042e-05" quat="-0.00183051 0.707365 0.00293286 0.70684" mass="0.0500998" diaginertia="1.33904e-05 1.10965e-05 8.46907e-06"/>
+        <joint name="joint_f2_1" pos="0 0 0" axis="-0.0143436 0.999896 -0.00155071" range="-1.57 1.57"/>
+        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="link_2"/>
+        <geom size="0.029 0.018 0.015" pos="0.05 0 0" type="box"/>
+        <geom size="0.015 0.005 0.012" pos="0.013 0.018 0" type="box"/>
+        <geom size="0.015 0.005 0.012" pos="0.013 -0.018 0" type="box"/>
+        <body name="link_f2_3" pos="0.0684929 0.000982456 -5.20041e-05">
+          <inertial pos="0.0442877 0.000635363 3.24374e-05" quat="-0.00452546 0.706825 0.00561834 0.707351" mass="0.0260029" diaginertia="8.6867e-06 7.1941e-06 3.47733e-06"/>
+          <joint name="joint_f2_2" pos="0 0 0" axis="0.0143436 -0.999896 0.00155071" range="-1.57 1.57"/>
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="link_3"/>
+          <geom type="mesh" mesh="finger_tip"/>
+          <geom size="0.015 0.005 0.012" pos="0.013 0.018 0" type="box"/>
+          <geom size="0.015 0.005 0.012" pos="0.013 -0.018 0" type="box"/>
+        </body>
+      </body>
+    </body>
+    <body name="link_f3_1" pos="-0.000224239 -0.0596332 0.0138356" quat="0.500002 0.500002 -0.499998 0.499998">
+      <inertial pos="0.0529378 0.000210782 -0.000208619" quat="-0.000845634 0.707106 0.00194226 0.707104" mass="0.0500998" diaginertia="1.27968e-05 1.169e-05 8.46909e-06"/>
+      <joint name="joint_f3_0" pos="0 0 0" axis="0 -0.00155087 -0.999999" range="-1.32 0.524"/>
+      <geom pos="0 0.005 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="link_1"/>
+      <geom size="0.029 0.019 0.015" pos="0.05 0 0" type="box"/>
+      <geom size="0.015 0.012 0.005" pos="0.013 0 -0.018" type="box"/>
+      <geom size="0.015 0.012 0.005" pos="0.013 0 0.018" type="box"/>
+      <body name="link_f3_2" pos="0.0684965 0.000745917 -0.000209449">
+        <inertial pos="0.0529381 0.000160241 0.000200254" quat="-0.000362995 0.705766 0.00143585 0.708443" mass="0.0500998" diaginertia="1.33904e-05 1.10965e-05 8.46907e-06"/>
+        <joint name="joint_f3_1" pos="0 0 0" axis="-0.0101469 0.999947 -0.00155079" range="-1.57 1.57"/>
+        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="link_2"/>
+        <geom size="0.029 0.018 0.015" pos="0.05 0 0" type="box"/>
+        <geom size="0.015 0.005 0.012" pos="0.013 0.018 0" type="box"/>
+        <geom size="0.015 0.005 0.012" pos="0.013 -0.018 0" type="box"/>
+        <body name="link_f3_3" pos="0.068496 0.00069546 0.00025837">
+          <inertial pos="0.0442683 0.000447053 -0.00138826" quat="-0.00297379 0.718091 0.00418284 0.695931" mass="0.0260029" diaginertia="8.6867e-06 7.1941e-06 3.47733e-06"/>
+          <joint name="joint_f3_2" pos="0 0 0" axis="-0.010147 0.999947 -0.0015508" range="-1.57 1.57"/>
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="link_3"/>
+          <geom type="mesh" mesh="finger_tip"/>
+          <geom size="0.015 0.005 0.012" pos="0.013 0.018 0" type="box"/>
+          <geom size="0.015 0.005 0.012" pos="0.013 -0.018 0" type="box"/>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>

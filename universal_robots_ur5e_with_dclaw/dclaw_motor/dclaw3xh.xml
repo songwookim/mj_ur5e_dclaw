@@ -1,0 +1,14 @@
+<mujoco model="dclaw3xh">
+  <compiler meshdir="."/>
+  <include file="assets/dependencies3xh.xml"/>
+  <include file="../scenes/basic_scene.xml"/>
+
+  <worldbody>
+    <body name="mount" pos="0 0 .30">
+      <include file="assets/chain3xh.xml"/>
+      <!-- <include file="assets/chain3xh_overlay.xml"/> -->
+      
+      <!-- <geom name="red_box" pos="0 0 -0.2125" type="capsule"  size=".01 .01 .01" rgba="1 0 0 1" mass=".002"/> -->
+    </body>
+  </worldbody>
+</mujoco>
