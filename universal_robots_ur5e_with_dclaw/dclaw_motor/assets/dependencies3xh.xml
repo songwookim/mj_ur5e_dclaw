@@ -81,7 +81,9 @@
     <jointvel name="THJ30_velocity_sensor" joint="THJ30"/>
     <jointvel name="THJ31_velocity_sensor" joint="THJ31"/>
     <jointvel name="THJ32_velocity_sensor" joint="THJ32"/> -->
-    <force name="ft_sensor_force" site="FFtip"/>
+    <force name="ft_sensor_force1" site="FFtip"/>
+    <force name="ft_sensor_force2" site="MFtip"/>
+    <force name="ft_sensor_force3" site="THtip"/>
     <torque name="ft_sensor_torque" site="FFtip"/>
   </sensor>
 </mujocoinclude>

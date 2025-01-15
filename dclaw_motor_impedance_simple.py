@@ -102,7 +102,7 @@ with mujoco.viewer.launch_passive(model, data) as viewer:
         with viewer.lock():
             viewer.opt.flags[mujoco.mjtVisFlag.mjVIS_CONTACTFORCE] = 1
 
-        force_list.append(data.sensor("ft_sensor_force").data.copy())
+        force_list.append([f1,f2,f3])
         f_imp_list.append(F_imp[0][0:3])
         #Step the simulation.
         mj.mj_step(model, data)
