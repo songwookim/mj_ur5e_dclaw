@@ -5,9 +5,14 @@ from robot_descriptions.loaders.mujoco import load_robot_description
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
-
-model = mj.MjModel.from_xml_path("./universal_robots_ur5e_with_dclaw/dclaw_motor/dclaw3xh.xml")
 matplotlib.use('TkAgg',force=True)
+
+elastic_flag = True
+if elastic_flag:
+    model = mj.MjModel.from_xml_path("./universal_robots_ur5e_with_dclaw/dclaw_motor/dclaw3xh_elastic_obj.xml")
+else:
+    model = mj.MjModel.from_xml_path("./universal_robots_ur5e_with_dclaw/dclaw_motor/dclaw3xh_object.xml")
+
 data = mj.MjData(model)                # MuJoCo data
 cam = mj.MjvCamera() 
 mujoco.mjv_defaultFreeCamera(model, cam)
@@ -17,16 +22,24 @@ spec = mj.MjSpec()
 #Reset state and time.
 mujoco.mj_resetData(model, data)
 
+dt = 0.001
+model.opt.timestep = dt  # 더 긴 시뮬레이션 시간 간격
 
 
 tol = 0.01
-dt = 0.0025
+
 damping = 0.25
 # goal = [-0., -0.0, 0.1] #Desire position
 # goals = [[0., .0, 0.1],[0., -0.1, 0.1],[0., 0.1, 0.1]] #Desire position 1
 goals = [[0., .0, 0.1],[0., .0, 0.1],[0., .0, 0.1]] #Desire position 2
-# goal = [-0., -0.02, 0.1] #Desire position
-
+tips = ["FFtip", "MFtip", "THtip"]
+initial_qpos = np.zeros(model.nq)  # 초기 위치 값 (0으로 설정, 예시)
+initial_qpos[1] = -np.pi/4  # 초기 위치 값 (0으로 설정, 예시)
+initial_qpos[4] = -np.pi/4  # 초기 위치 값 (0으로 설정, 예시)
+initial_qpos[7] = -np.pi/4  # 초기 위치 값 (0으로 설정, 예시)
+initial_qpos[2] = np.pi/4  # 초기 위치 값 (0으로 설정, 예시)
+initial_qpos[5] = np.pi/4  # 초기 위치 값 (0으로 설정, 예시)
+initial_qpos[8] = np.pi/4  # 초기 위치 값 (0으로 설정, 예시)
 
 
 #Init parameters
@@ -34,8 +47,8 @@ jacp = np.zeros((3,3, model.nv)) #translation jacobian (NUMBER OF JOINT x NUM_OF
 jacr = np.zeros((3,3, model.nv)) #rotational jacobian
 
 #Simulate
-desired_stiffness = [[500, 0, 0],[0, 500, 0],[0, 0, 500]]
-desired_damping = [[1, 0, 0],[0, 1, 0],[0, 0, 1]]
+desired_stiffness = np.eye(3)*250
+desired_damping = np.eye(3)*1
 # desired_damping = 300
 desired_inertia = np.eye(3) * 0.01 # compare 1 with 30
 #Get error.
@@ -49,9 +62,17 @@ end_effector_id.append(model.body('THL32').id)
 
 force_list = []
 f_imp_list = []
-e_list = []
-tips = ["FFtip", "MFtip", "THtip"]    # 
+ee_list = []
+
 with mujoco.viewer.launch_passive(model, data) as viewer:
+    if elastic_flag:
+        for i in range(9):
+            idx = i+56
+            data.joint(idx).qpos = initial_qpos[i]
+    else:
+        data.qpos[:] = initial_qpos
+    mujoco.mj_forward(model, data)
+    mj.mj_step(model, data)
     viewer.sync()
     with viewer.lock():
         for goal in goals:
@@ -113,68 +134,49 @@ with mujoco.viewer.launch_passive(model, data) as viewer:
 
             f_ext = data.sensor("ft_sensor_force1").data.copy() * 0
 
-            tau_imp += M@j_inv@(Md_inv@(f_ext+desired_damping@xvel-desired_stiffness@x_error)-Jacp_dot@data.qvel)+c-jacp[idx,:].T@f_ext
+            tau_imp += M@j_inv@(Md_inv@(f_ext+desired_damping@xvel-desired_stiffness@x_error) \
+                                -Jacp_dot@data.qvel)+c-jacp[idx,:].T@f_ext
             e_temp.append(x_error)
         data.qfrc_applied  = tau_imp
 
         mj.mj_forward(model, data)
 
         with viewer.lock():
-            viewer.opt.flags[mujoco.mjtVisFlag.mjVIS_CONTACTFORCE] = 1
+            viewer.opt.flags[mujoco.mjtVisFlag.mjVIS_CONTACTFORCE] = 0
 
-        f1 = np.sum(data.sensor("ft_sensor_force1").data.copy())
-        f2 = np.sum(data.sensor("ft_sensor_force2").data.copy())
-        f3 = np.sum(data.sensor("ft_sensor_force3").data.copy())
+        force_list.append(data.sensor("ft_sensor_force1").data.copy()) # finger 1
 
-        e = np.array(e_temp)**2
-        e1 = np.sum(e[0])
-        e2 = np.sum(e[1])
-        e3 = np.sum(e[2])
- 
-        force_list.append([f1,f2,f3])
-        f_imp_list.append(tau_imp[0:3])
-        e_list.append([e1,e2,e3])
+        temp_ft = np.zeros(6)
+        mujoco.mj_contactForce(model, data, 0, temp_ft)
+        
+        ee_list.append(np.subtract(goal[0], data.site("FFtip").xpos))    # finger 1
+
         #Step the simulation.
         mj.mj_step(model, data)
         viewer.sync()
-        if time > 5000:
-            break
+        # if time > 5000:
+        #     break
     # else : 
     #     print("completed")
 
 _, ax = plt.subplots(2, 1, sharex=True, figsize=(10, 10))
 force_list = np.array(force_list)
-f_imp_list = np.array(f_imp_list)
-e_list = np.array(e_list)
+ee_list = np.array(ee_list)
 sim_time = range(time)
 lines = ax[0].plot(sim_time,force_list, label='Force sensor')
-ax[0].set_title('Measured Force by Force sensor')
+ax[0].set_title('Force sensor')
 ax[0].set_ylabel('Newtons')
-ax[0].set_xlabel('time(ms)')
-ax[0].legend(iter(lines), ('$Finger 1$', '$Finger 2$', '$Finger 3$'))
-# ax[0].set_xlim([-2, 2])
-# ax[0].set_ylim([-2, 2])
+ax[0].set_xlabel('time')
+ax[0].legend(iter(lines), ('$F_x$', '$F_y$', '$F_z$'))
+if elastic_flag:
+    ax[0].set_ylim([-5,5])
+    ax[0].set_xlim([0,800])
 
-lines = ax[1].plot(sim_time,e_list, label='Position error')
-ax[1].set_title('Position error for each end-effectors ')
-ax[1].set_ylabel('Position error')
-ax[1].set_xlabel('time(ms)')
+lines = ax[1].plot(sim_time,ee_list, label='ee error')
+ax[1].set_title('ee error')
+ax[1].set_ylabel('mm')
+ax[1].set_xlabel('time')
 # ax[1].legend(iter(lines), ('FFL10','FFL11','FFL12','MFL20','MFL21','MFL22','THL30','THL31','THL32'))
-ax[1].legend(iter(lines), ('Finger 1','Finger 2','Finger 3'))
-# ax[1].set_xlim([-1, 1])
-# ax[1].set_ylim([-1, 1])
+ax[1].legend(iter(lines), ('x','y','z'))
 plt.tight_layout()
 plt.show()
-plt.close()
-
-# lines = ax[1].plot(sim_time,f_imp_list, label='Impedance controller')
-# ax[1].set_title('$\\tau_{imp}$ by Impedance controller without Force Sensor')
-# ax[1].set_ylabel('Newtons')
-# ax[1].set_xlabel('time(ms)')
-# # ax[1].legend(iter(lines), ('FFL10','FFL11','FFL12','MFL20','MFL21','MFL22','THL30','THL31','THL32'))
-# ax[1].legend(iter(lines), ('Top','Middle','Bottom'))
-# # ax[1].set_xlim([-1, 1])
-# # ax[1].set_ylim([-1, 1])
-# plt.tight_layout()
-# plt.show()
-# plt.close()

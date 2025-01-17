@@ -1,0 +1,23 @@
+<mujoco model="dclaw3xh">
+  <statistic extent="1.5" meansize=".05"/>
+  <!-- <option solver="CG" tolerance="1e-6" timestep=".001" integrator="implicitfast"/> -->
+
+  <compiler meshdir="."/>
+  <include file="assets/dependencies3xh.xml"/>
+  <include file="../scenes/basic_scene.xml"/>
+  <size memory="30M"/>
+  <worldbody>
+    <flexcomp type="cylinder" pos="0 0 .1" count="4 4 4" spacing=".0175 .0175 .0175"
+              radius="0.00175" dim="3" name="grid" >      
+      <edge damping="01"/>
+      <!-- <contact selfcollide="none"/> -->
+      <elasticity young="4e4" damping="0.02" poisson="0." />
+      
+      </flexcomp>
+    <body name="mount" pos="0 0 .30">
+      <include file="assets/chain3xh.xml"/>
+
+      <!-- <include file="assets/chain3xh_overlay.xml"/> -->
+    </body>
+  </worldbody>
+</mujoco>

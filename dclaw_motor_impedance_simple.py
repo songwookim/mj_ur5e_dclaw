@@ -32,8 +32,8 @@ jacp = np.zeros((3,3, model.nv)) #translation jacobian (NUMBER OF JOINT x NUM_OF
 jacr = np.zeros((3,3, model.nv)) #rotational jacobian
 
 #Simulate
-desired_stiffness = 500
-desired_damping = 3
+desired_stiffness = 150
+desired_damping = 2
 desired_inertia = 0.01 # compare 1 with 30
 
 #Get error.
@@ -102,7 +102,7 @@ with mujoco.viewer.launch_passive(model, data) as viewer:
         with viewer.lock():
             viewer.opt.flags[mujoco.mjtVisFlag.mjVIS_CONTACTFORCE] = 1
 
-        force_list.append([f1,f2,f3])
+        force_list.append([1,1,1])
         f_imp_list.append(F_imp[0][0:3])
         #Step the simulation.
         mj.mj_step(model, data)

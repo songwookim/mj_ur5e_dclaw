@@ -1,7 +1,7 @@
 <mujoco model="ur5e">
   <compiler angle="radian" meshdir="assets" autolimits="true"/>
   <option integrator="implicitfast"/>
-  <include file="assets/dependencies3xh.xml"/>
+  <include file="./assets/dependencies3xh.xml"/>
   <default>
     <default class="ur5e">
       <material specular="0.5" shininess="0.25"/>

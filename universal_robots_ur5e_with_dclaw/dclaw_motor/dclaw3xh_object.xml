@@ -8,7 +8,7 @@
       <include file="assets/chain3xh.xml"/>
       <!-- <include file="assets/chain3xh_overlay.xml"/> -->
       
-      <!-- <geom name="red_box" pos="0 0 -0.2" type="capsule"  size=".035 .035 .035" rgba="1 0 0 1" mass=".002" /> -->
+      <geom name="red_box" pos="0 0 -0.2" type="capsule"  size=".035 .035 .035" rgba="1 0 0 1" mass=".002" />
     </body>
   </worldbody>
 </mujoco>
