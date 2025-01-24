@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('TkAgg',force=True)
 
-elastic_flag = False
+elastic_flag = True
 if elastic_flag:
     model = mj.MjModel.from_xml_path("./universal_robots_ur5e_with_dclaw/dclaw_motor/dclaw3xh_elastic_obj.xml")
 else:

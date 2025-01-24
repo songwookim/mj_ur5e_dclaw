@@ -1,6 +1,6 @@
 <mujoco model="dclaw3xh">
   <statistic extent="1.5" meansize=".05"/>
-  <!-- <option solver="CG" tolerance="1e-6" timestep=".001" integrator="implicitfast"/> -->
+  <option solver="CG" tolerance="1e-6" timestep=".001" integrator="implicitfast"/>
 
   <compiler meshdir="."/>
   <include file="assets/dependencies3xh.xml"/>
